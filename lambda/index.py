@@ -27,7 +27,7 @@ def lambda_handler(event, context):
             "top_p": 0.9
         }
 
-        body = json.dumps(request_payload)
+        data = json.dumps(request_payload).encode('utf-8')
         headers = {'Content-Type': 'application/json'}
 
         print("Calling fastAPI with payload:", body)
@@ -35,7 +35,7 @@ def lambda_handler(event, context):
         # invoke_model APIを呼び出し
         req = urllib.request.Request(
             url,
-            body,
+            data,
             headers
         )
         with urllib.request.urlopen(req) as res:
@@ -45,7 +45,9 @@ def lambda_handler(event, context):
         print("fastAPI response:", json.dumps(response_body, default=str))
 
         # アシスタントの応答を取得
-        assistant_response = response_body['generated_text']
+        response_text = response_body.decode('utf-8')
+        response_json = json.loads(response_text)
+        assistant_response = response_json['generated_text']
 
         # 成功レスポンスの返却
         return {
@@ -211,3 +213,4 @@ def lambda_handler(event, context):
 #                 "error": str(error)
 #             })
 #         }
+
